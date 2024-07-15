@@ -1,0 +1,1 @@
+{"version":1,"defects":[],"times":{"CP\\Filter\\tests\\FilterTest::testCmp":0.008,"CP\\Filter\\tests\\FilterTest::testCmpFld":0.001,"CP\\Filter\\tests\\FilterTest::testEscapeStr":0.001,"CP\\Filter\\tests\\FilterTest::testAndExpr":0.001,"CP\\Filter\\tests\\FilterTest::testOrExpr":0.001,"CP\\Filter\\tests\\FilterTest::testInExpr":0.002}}

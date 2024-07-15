@@ -1,0 +1,82 @@
+/**
+ * to generate lexer run by node programm syntax-cli
+ * syntax-cli -g Grammar.syn -m SLR1 -o Parser.php
+ *
+ * Грамматика языка фильтрации данных.
+ * Поддерживаются операции: логическое НЕ, логическое И, логическое ИЛИ, проверка равенства (EQUAL).
+ * В качестве терминалов могут быть:
+ *          числа (1, 2, 3, ...),
+ *          строки ("строки", 'строки'),
+ *          имена полей объектов  (RegNumber, Vin, Brand ...)
+ *          null
+ *
+ * РБНФ:
+ *   FORMULA = OP
+ *   OP = NOT ( EXPR ) |
+          EQ ( EXPR ) |
+          AND ( EXPR , EXPR ) |
+          OR ( EXPR , EXPR )
+ *   EXPR = OP | VALUE
+ *   VALUE = NUMBER | STRING | FIELDNAME | NULL
+ *   NUMBER = любой число
+ *   STRING = строка в "" или ''
+ *   FIELDNAME = строка без "" или '' считается именем поля объекта
+ *   NULL = null
+ */
+{
+    "lex": {
+        "rules": [
+            ["\\s+",  "# skip whitespace"],
+
+            ['not', "return 'NOT'"],
+
+            ['eq',  "return 'EQ'"],
+
+            ['and', "return 'AND'"],
+            ['or', "return 'OR'"],
+            ['in', "return 'IN'"],
+
+            ['NULL', "return 'NULL'"],
+
+            [",",  "return ','" ],
+            ["\\(",  "return '('" ],
+            ["\\)",  "return ')'" ],
+
+            ["\\d+(\\.\\d+)?", "return 'NUMBER'"],
+            ['"(\\\\"|[^"])*"', "return 'STRING'"],
+            ["'(\\\\'|[^'])*'", "return 'STRING'"],
+            ['[A-Z]\\w+(\\.[A-Z]\\w+)*',  "return 'FIELDNAME'"],
+        ]
+    },
+
+    "operators"  : [
+        ['left', ',']
+    ],
+
+    "bnf": {
+        "FORMULA": [ [ "OP", "$$ = $1" ] ],
+
+        "EXPR": [ [ "OP"    , "$$ = $1"],
+                  [ "VALUE" , "$$ = $1" ], ],
+
+        "OP": [[ "NOT ( EXPR )",
+                 "$$ = new Tokens\\NotExpr($3)"],
+
+               [ "EQ ( EXPR , EXPR )",
+                 "$$ = new Tokens\\EqExpr($3, $5)" ],
+
+               [ "AND ( EXPR , EXPR )",
+                 "$$ = new Tokens\\AndExpr($3, $5)" ],
+
+               [ "OR ( EXPR , EXPR )",
+                 "$$ = new Tokens\\OrExpr($3, $5)" ],
+
+               [ "IN ( EXPR , EXPR )",
+                 "$$ = new Tokens\\InExpr($3, $5)" ] ],
+
+        "VALUE": [ ["NUMBER",   "$$ = new Tokens\\IntVal($1)"  ],
+                   ["STRING",   "$$ = new Tokens\\StrVal($1)"  ],
+                   ["FIELDNAME",  "$$ = new Tokens\\FldVal($1)"  ],
+                   ["NULL",     "$$ = new Tokens\\NullVal()"  ] ]
+    },
+}
