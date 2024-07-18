@@ -58,7 +58,7 @@ class LikeExpr extends BinaryExpression
                 $end = mb_substr($filter, $index + 1, NULL);
                 $filter = $begin . $replacer . $end;
             } else {
-                $begin = mb_substr($filter, 0, $index - 1);
+                $begin = mb_substr($filter, 0, $index - 2);
                 $end = mb_substr($filter, $index + 1, NULL);
                 $filter = $begin . $letter . $end;
             }
@@ -82,6 +82,7 @@ class LikeExpr extends BinaryExpression
         $filter = $this->verifyFilter($filter);
 
         // экранирование спец символа "_" в фильтре
+        $filter = preg_quote($filter, '/');
         $filter = $this->replaceLetter($filter, '_');
         $filter = $this->replaceLetter($filter, '%');
         $filter = "/^" . $filter . "$/";
