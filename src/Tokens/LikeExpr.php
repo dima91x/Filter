@@ -41,6 +41,33 @@ class LikeExpr extends BinaryExpression
         return $filter;
     }
 
+    private function replaceLetter($filter, $letter)
+    {
+        if($letter == '_')
+            $replacer = '[\S]';
+        elseif($letter == '%')
+            $replacer = '[\S]*';
+        else
+            return $filter;
+
+        $index = strpos($filter, $letter);
+
+        while ($index !== false) {
+            if ($index == 0 || $filter[$index - 1] != "\\") {
+                $begin = mb_substr($filter, 0, $index);
+                $end = mb_substr($filter, $index + 1, NULL);
+                $filter = $begin . $replacer . $end;
+            } else {
+                $begin = mb_substr($filter, 0, $index - 1);
+                $end = mb_substr($filter, $index + 1, NULL);
+                $filter = $begin . $letter . $end;
+            }
+            $index = strpos($filter, $letter, $index);
+        }
+
+        return $filter;
+    }
+
     public function apply($data)
     {
         $field = $this->left;
@@ -55,34 +82,11 @@ class LikeExpr extends BinaryExpression
         $filter = $this->verifyFilter($filter);
 
         // экранирование спец символа "_" в фильтре
-        $index = strpos($filter, '_');
-        while ($index !== false) {
-            if ($index == 0 || $filter[$index - 1] != "\\") {
-                $begin = mb_substr($filter, 0, $index);
-                $end = mb_substr($filter, $index + 1, NULL);
-                $filter = $begin . '[\S]' . $end;
-            } else {
-                $begin = mb_substr($filter, 0, $index - 1);
-                $end = mb_substr($filter, $index + 1, NULL);
-                $filter = $begin . '_' . $end;
-            }
-            $index = strpos($filter, '_', $index);
-        }
+        $filter = $this->replaceLetter($filter, '_');
+        $filter = $this->replaceLetter($filter, '%');
+        $filter = "/^" . $filter . "$/";
 
         // создание маски для regexp, замена спец символа % на концах
-        if (preg_match("/^[%]+[^\s]*[%]$/", $filter) === 1) {
-            $filter = mb_substr($filter, 1, -1);
-            $filter = "/^[\S]*" . $filter . "+[\S]*/";
-        } elseif (preg_match("/^[%]+[^\s]*/", $filter) === 1) {
-            $filter = mb_substr($filter, 1, NULL);
-            $filter = "/^[\S]*" . $filter . "$/";
-        } elseif (preg_match("/[^\s]*[%]$/", $filter) === 1) {
-            $filter = mb_substr($filter, 0, -1);
-            $filter = "/^" . $filter . "+[\S]*/";
-        } else {
-            $filter = "/^" . $filter . "$/";
-        }
-
         return preg_match($filter, $field) === 1 ? true : false;
     }
 }
