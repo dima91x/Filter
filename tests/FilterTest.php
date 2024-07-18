@@ -101,6 +101,9 @@ class FilterTest extends TestCase
 
     public function testInExpr()
     {
+        $car["Brand"] = "Skoda";
+        $car["Model"] = "Karoq";
+
         $expect = new T\LikeExpr(
             new T\FldVal("Brand"),
             new T\StrVal("'%Ka_\_oq'")
@@ -109,22 +112,20 @@ class FilterTest extends TestCase
         $ast = $this->filter->getAst('like(Brand, "%Ka_\_oq")');
         $this->assertEquals($expect, $ast, 'Not valid escape str in ast');
 
-
-        $expect = new T\LikeExpr(
-            new T\FldVal( "Model" ),
-            new T\StrVal( "'M_'" )
+        $opLike = new T\LikeExpr(
+            new T\FldVal( 'Brand' ),
+            new T\StrVal( "'S__d%'" )
         );
 
-        $ast = $this->filter->getAst("like(Model, 'M_')");
-        $this->assertEquals( $expect, $ast, 'Not valid escape str in ast' );
+        $this->assertTrue($opLike->apply($car),"Not found match");
 
-        $expect = new T\LikeExpr(
-            new T\FldVal( 'BMW' ),
-            new T\StrVal( '"BMW"' )
+        $opLike = new T\LikeExpr(
+            new T\FldVal( 'Model' ),
+            new T\StrVal( "'%roq_'" )
         );
 
-        $ast = $this->filter->getAst('like(BMW, "BMW")');
-        $this->assertEquals( $expect, $ast, 'Not valid escape str in ast' );
+        $this->assertFalse($opLike->apply($car),"Invalid found match");
+
     }
 
 }

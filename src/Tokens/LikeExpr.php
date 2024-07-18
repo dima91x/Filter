@@ -75,14 +75,17 @@ class LikeExpr extends BinaryExpression
             $filter = "/^[\S]*" . $filter . "+[\S]*/";
         } elseif (preg_match("/^[%]+[^\s]*/", $filter) === 1) {
             $filter = mb_substr($filter, 1, NULL);
-            $filter = "/^[\S]*" . $filter . "/";
+            $filter = "/^[\S]*" . $filter . "$/";
         } elseif (preg_match("/[^\s]*[%]$/", $filter) === 1) {
             $filter = mb_substr($filter, 0, -1);
             $filter = "/^" . $filter . "+[\S]*/";
         } else {
-            $filter = "/^" . $filter . "/";
+            $filter = "/^" . $filter . "$/";
         }
 
-        return (bool) preg_match($filter, $field);
+        //return $filter;
+        //return $field;
+
+        return preg_match($filter, $field) === 1 ? true : false;
     }
 }
