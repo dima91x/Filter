@@ -71,12 +71,15 @@
                [ "OR ( EXPR , EXPR )",
                  "$$ = new Tokens\\OrExpr($3, $5)" ],
 
-               [ "LIKE ( VALUE , VALUE )",
+               [ "LIKE ( FIELD , FILTER )",
                  "$$ = new Tokens\\LikeExpr($3, $5)" ] ],
 
         "VALUE": [ ["NUMBER",   "$$ = new Tokens\\IntVal($1)"  ],
                    ["STRING",   "$$ = new Tokens\\StrVal($1)"  ],
                    ["FIELDNAME",  "$$ = new Tokens\\FldVal($1)"  ],
-                   ["NULL",     "$$ = new Tokens\\NullVal()"  ] ]
+                   ["NULL",     "$$ = new Tokens\\NullVal()"  ] ],
+
+       "FIELD": [ ["FIELDNAME",  "$$ = new Tokens\\FldVal($1)" ] ],
+       "FILTER": [ ["STRING",   "$$ = new Tokens\\StrVal($1)"  ] ],
     },
 }

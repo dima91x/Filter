@@ -112,19 +112,11 @@ class FilterTest extends TestCase
         $ast = $this->filter->getAst('like(Brand, "%Ka_\_oq")');
         $this->assertEquals($expect, $ast, 'Not valid escape str in ast');
 
-        $opLike = new T\LikeExpr(
-            new T\FldVal( 'Brand' ),
-            new T\StrVal( "'S__d%'" )
-        );
+        $ast = $this->filter->getAst('like(Brand, "S__d%")');
+        $this->assertTrue($ast->apply($car),"Not found match");
 
-        $this->assertTrue($opLike->apply($car),"Not found match");
-
-        $opLike = new T\LikeExpr(
-            new T\FldVal( 'Model' ),
-            new T\StrVal( "'%roq_'" )
-        );
-
-        $this->assertFalse($opLike->apply($car),"Invalid found match");
+        $ast = $this->filter->getAst('like(Model, "%roq_")');
+        $this->assertFalse($ast->apply($car),"Invalid found match");
 
     }
 
