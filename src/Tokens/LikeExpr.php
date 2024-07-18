@@ -83,6 +83,6 @@ class LikeExpr extends BinaryExpression
             $filter = "/^" . $filter . "/";
         }
 
-        return preg_match($filter, $field);
+        return (bool) preg_match($filter, $field);
     }
 }
