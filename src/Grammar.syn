@@ -71,7 +71,7 @@
                [ "OR ( EXPR , EXPR )",
                  "$$ = new Tokens\\OrExpr($3, $5)" ],
 
-               [ "LIKE ( EXPR , EXPR )",
+               [ "LIKE ( VALUE , VALUE )",
                  "$$ = new Tokens\\LikeExpr($3, $5)" ] ],
 
         "VALUE": [ ["NUMBER",   "$$ = new Tokens\\IntVal($1)"  ],
