@@ -81,13 +81,14 @@ class LikeExpr extends BinaryExpression
         $filter = $this->right->apply($data);
         $filter = $this->verifyFilter($filter);
 
-        // экранирование спец символа "_" в фильтре
+        // экранирование спец символов для regexp
         $filter = preg_quote($filter, '/');
+
+        // замена спец символов "%" и "_" в фильтре
         $filter = $this->replaceLetter($filter, '_');
         $filter = $this->replaceLetter($filter, '%');
         $filter = "/^" . $filter . "$/";
 
-        // создание маски для regexp, замена спец символа % на концах
         return preg_match($filter, $field) === 1 ? true : false;
     }
 }
